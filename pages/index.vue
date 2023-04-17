@@ -14,7 +14,7 @@
 			</div>
 			<div id="main-input" class="d-flex justify-content-between min-text">
 				<input type="text" id="message-main-input" placeholder="Type a new chatroom name..."/>
-				<button type="submit" class="max-text">Create Chatroom</button>
+				<button type="submit" @click = "createChatroom" class="max-text">Create Chatroom</button>
 			</div>
 		</div>
 </template>
@@ -27,9 +27,33 @@
       var chatroomsContent = ""
       for (let chatroom of chatrooms) {
         console.log(chatroom.id)
-        chatroomsContent += "<div class='main-chatroom'><a href='/chatroom/" + chatroom.id + "'>" + chatroom.name + "</a></div>"
+        chatroomsContent += "<div class='main-chatroom semi-bold-text'><a href='/chatroom/" + chatroom.id + "'>" + chatroom.name + "</a></div>"
       }
       document.querySelector("#main-chatrooms").innerHTML = document.querySelector("#main-chatrooms").innerHTML.replace(document.querySelector("#main-chatrooms").innerHTML, chatroomsContent)
+    }
+  }
+</script>
+
+<script setup>
+  async function loadChatrooms() {
+    var {data: chatrooms} = await useFetch('http://127.0.0.1:3001/api/v1/rooms')
+    chatrooms = chatrooms._value.data
+    var chatroomsContent = ""
+    for (let chatroom of chatrooms) {
+      console.log(chatroom.id)
+      chatroomsContent += "<div class='main-chatroom semi-bold-text'><a href='/chatroom/" + chatroom.id + "'>" + chatroom.name + "</a></div>"
+    }
+    document.querySelector("#main-chatrooms").innerHTML = document.querySelector("#main-chatrooms").innerHTML.replace(document.querySelector("#main-chatrooms").innerHTML, chatroomsContent)
+  }
+  async function createChatroom() {
+    if (document.querySelector("#message-main-input").value != "") {
+      const {data: response} = await useFetch('http://127.0.0.1:3001/api/v1/rooms', {
+        method: 'post',
+        body: {
+            name: document.querySelector("#message-main-input").value
+        }
+      })
+      loadChatrooms()
     }
   }
 </script>
@@ -143,7 +167,7 @@
 		}
   }
 
-	#bg-main {
+	#bg-chatroom {
 		background-image: url('/images/main-background.jpg');
 		background-size: cover;
 		height: 100vh;
